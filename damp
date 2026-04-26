@@ -1,0 +1,115 @@
+#!/bin/bash
+set -euo pipefail
+
+# Port map: php_version → php_port:pma_port
+declare -A PHP_PORTS=( [7.1]="8071:8171" [7.4]="8074:8174" [8.2]="8082:8182" [8.3]="8083:8183" [8.4]="8084:8184" )
+
+usage() {
+  echo "Uso: damp <version-php> <proyecto>"
+  echo ""
+  echo "  damp 8.2 miproyecto       → levanta PHP 8.2 con el proyecto 'miproyecto'"
+  echo "  damp 8.2 --stop           → detiene los contenedores de PHP 8.2"
+  echo "  damp 8.2 --restart        → reinicia los contenedores de PHP 8.2"
+  echo "  damp --list               → muestra qué proyecto está cargado en cada versión"
+  echo ""
+  echo "Versiones disponibles: ${!PHP_PORTS[*]}"
+  exit 1
+}
+
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECTS_DIR="$BASE_DIR/proyectos"
+
+# puse --list
+if [[ "${1:-}" == "--list" ]]; then
+  echo "Estado actual:"
+  for ver in $(echo "${!PHP_PORTS[@]}" | tr ' ' '\n' | sort); do
+    dir_name="php${ver//./}"
+    www_link="$BASE_DIR/$dir_name/www"
+    if [[ -L "$www_link" ]]; then
+      project=$(basename "$(readlink "$www_link")")
+      echo "  PHP $ver  →  $project"
+    else
+      echo "  PHP $ver  →  (sin proyecto)"
+    fi
+  done
+  exit 0
+fi
+
+[[ $# -lt 2 ]] && usage
+
+PHP_VER="$1"
+PROJECT="$2"
+DIR_NAME="php${PHP_VER//./}"
+DIR="$BASE_DIR/$DIR_NAME"
+
+# Validate PHP version
+if [[ -z "${PHP_PORTS[$PHP_VER]:-}" ]]; then
+  echo "Error: versión '$PHP_VER' no reconocida."
+  echo "Disponibles: ${!PHP_PORTS[*]}"
+  exit 1
+fi
+
+if [[ ! -d "$DIR" ]]; then
+  echo "Error: directorio '$DIR_NAME' no existe. Ejecuta setup.sh primero."
+  exit 1
+fi
+
+IFS=':' read -r port_php port_pma <<< "${PHP_PORTS[$PHP_VER]}"
+
+# damp <ver> --stop
+if [[ "$PROJECT" == "--stop" ]]; then
+  echo "Deteniendo PHP $PHP_VER..."
+  (cd "$DIR" && docker compose down)
+  echo "✓ PHP $PHP_VER detenido"
+  exit 0
+fi
+
+# damp <ver> --restart
+if [[ "$PROJECT" == "--restart" ]]; then
+  echo "Reiniciando PHP $PHP_VER..."
+  (cd "$DIR" && docker compose restart)
+  echo ""
+  echo "✓ PHP $PHP_VER reiniciado"
+  echo "  PHP $PHP_VER       →  http://localhost:$port_php"
+  echo "  phpMyAdmin  →  http://localhost:$port_pma"
+  exit 0
+fi
+
+# Validate project folder
+PROJECT_PATH="$PROJECTS_DIR/$PROJECT"
+if [[ ! -d "$PROJECT_PATH" ]]; then
+  echo "Error: proyecto '$PROJECT' no encontrado en $PROJECTS_DIR"
+  echo ""
+  echo "Proyectos disponibles:"
+  ls "$PROJECTS_DIR" 2>/dev/null | sed 's/^/  /' || echo "  (carpeta proyectos vacía o inexistente)"
+  exit 1
+fi
+
+# Replace www with symlink to project
+WWW_LINK="$DIR/www"
+if [[ -L "$WWW_LINK" ]]; then
+  rm "$WWW_LINK"
+elif [[ -d "$WWW_LINK" ]]; then
+  if [[ -n "$(ls -A "$WWW_LINK" 2>/dev/null)" ]]; then
+    echo "Error: $DIR_NAME/www existe y no está vacío. Vacíalo o bórralo manualmente antes de continuar."
+    exit 1
+  fi
+  rmdir "$WWW_LINK"
+fi
+
+ln -s "$PROJECT_PATH" "$WWW_LINK"
+
+# Write .env so docker-compose resolves the real path (avoids macOS symlink issues)
+cat > "$DIR/.env" <<EOF
+PROJECT_PATH=$PROJECT_PATH
+EOF
+
+echo "→ $DIR_NAME/www  ⟶  $PROJECT"
+
+# Start containers
+cd "$DIR"
+docker compose up -d --build
+
+echo ""
+echo "  PHP $PHP_VER       →  http://localhost:$port_php"
+echo "  phpMyAdmin  →  http://localhost:$port_pma"
