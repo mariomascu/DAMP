@@ -1,12 +1,11 @@
-# DAMP - Docker Apache MySQL PHP
-<em>by Mario Mascuñano</em>
-version 1.2
+# DAMP - Docker Apache MySQL PHP Tool
+<em>by Mario Mascuñano</em><br>
+<strong>version 1.2</strong>
 
 > Entorno de desarrollo local multi-versión de PHP con Docker, similar a XAMPP pero más ligero y flexible.
 
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker)](https://www.docker.com/)
 [![Bash](https://img.shields.io/badge/Bash-4EAA25?style=flat&logo=gnu-bash)](https://www.gnu.org/software/bash/)
-[![Licencia](https://img.shields.io/badge/Licencia-MIT-green.svg)](LICENSE)
 
 ---
 
