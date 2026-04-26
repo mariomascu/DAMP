@@ -1,4 +1,6 @@
 # DAMP - Docker Apache MySQL PHP
+<em>by Mario Mascuñano</em>
+version 1.2
 
 > Entorno de desarrollo local multi-versión de PHP con Docker, similar a XAMPP pero más ligero y flexible.
 
