@@ -37,8 +37,8 @@ define( 'NONCE_SALT',       'reemplaza-esto' );
 $table_prefix = 'wp_';
 
 // ** Depuración (desactívalo en producción) ** //
-define( 'WP_DEBUG',    true );
-define( 'WP_DEBUG_LOG', true );   // guarda errores en wp-content/debug.log
+define( 'WP_DEBUG',    false );
+define( 'WP_DEBUG_LOG', false );   // guarda errores en wp-content/debug.log
 define( 'WP_DEBUG_DISPLAY', false );  // no muestra errores en pantalla
 
 /* ¡No edites más allá de esta línea! */
