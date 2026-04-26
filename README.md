@@ -1,11 +1,10 @@
-# DAMP - Docker Apache MySQL PHP Tool
-<em>by Mario Mascuñano</em><br>
-<strong>version 1.2</strong>
+# DAMP - Docker Apache MySQL PHP
 
 > Entorno de desarrollo local multi-versión de PHP con Docker, similar a XAMPP pero más ligero y flexible.
 
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker)](https://www.docker.com/)
 [![Bash](https://img.shields.io/badge/Bash-4EAA25?style=flat&logo=gnu-bash)](https://www.gnu.org/software/bash/)
+[![Licencia](https://img.shields.io/badge/Licencia-MIT-green.svg)](LICENSE)
 
 ---
 
@@ -150,12 +149,12 @@ docker exec -i php84-mysql-1 mysql -u root mi_proyecto < ~/Downloads/mi_proyecto
 
 ### Configuración WordPress (`wp-config.php`)
 
-```php
-define( 'DB_NAME',     'nombre_base_de_datos' );
-define( 'DB_USER',     'root' );
-define( 'DB_PASSWORD', '' );
-define( 'DB_HOST',     'mysql' );  // nombre del servicio Docker, no 'localhost'
-```
+Usa la plantilla incluida en el repositorio: [wp-config-template.md](wp-config-template.md)
+
+Puntos clave respecto a un wp-config.php estándar:
+
+- `DB_HOST` debe ser `mysql`, no `localhost` — dentro de Docker los servicios se comunican por nombre de servicio
+- `WP_SITEURL` y `WP_HOME` se definen dinámicamente con `$_SERVER['HTTP_HOST']` para que funcionen con cualquier versión/puerto de DAMP sin tocar el fichero
 
 ---
 
@@ -240,12 +239,6 @@ docker compose up -d
 ```bash
 sudo chown -R $USER:$USER damp/
 ```
-
----
-
-## 📄 Licencia
-
-MIT License — libre para usar y modificar.
 
 ---
 
