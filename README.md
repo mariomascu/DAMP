@@ -50,15 +50,25 @@ damp <version-php> <nombre-proyecto>
 
 Ejemplo:
 ```bash
-damp 8.4 mi-proyecto
+damp 8.4 cdsalesianos
 ```
 
 Esto:
-1. Crea el symlink `php84/www → proyectos/mi-proyecto`
+1. Crea el symlink `php84/www → proyectos/cdsalesianos`
 2. Escribe `php84/.env` con la ruta del proyecto
 3. Lanza `docker compose up -d --build`
 
 El proyecto queda disponible en http://localhost:8084
+
+### Cambiar de proyecto en la misma versión de PHP
+
+Ejecuta el mismo comando apuntando al nuevo proyecto:
+
+```bash
+damp 8.4 otroproject
+```
+
+El comando actualiza el enlace al nuevo proyecto y recrea únicamente el contenedor PHP/Apache, que es el que sirve los ficheros. MySQL y phpMyAdmin siguen corriendo sin interrupción, por lo que las bases de datos se conservan.
 
 ### Ver qué proyecto tiene cargado cada versión
 
