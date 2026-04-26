@@ -50,11 +50,11 @@ damp <version-php> <nombre-proyecto>
 
 Ejemplo:
 ```bash
-damp 8.4 cdsalesianos
+damp 8.4 mi-proyecto
 ```
 
 Esto:
-1. Crea el symlink `php84/www → proyectos/cdsalesianos`
+1. Crea el symlink `php84/www → proyectos/mi-proyecto`
 2. Escribe `php84/.env` con la ruta del proyecto
 3. Lanza `docker compose up -d --build`
 
